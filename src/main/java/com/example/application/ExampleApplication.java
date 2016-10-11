@@ -2,8 +2,8 @@ package com.example.application;
 
 import com.codahale.metrics.ConsoleReporter;
 import com.codahale.metrics.MetricFilter;
-import com.codahale.metrics.graphite.Graphite;
-import com.codahale.metrics.graphite.GraphiteReporter;
+import com.codahale.metrics.riemann.Riemann;
+import com.codahale.metrics.riemann.RiemannReporter;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Environment;
 
@@ -22,14 +22,14 @@ public class ExampleApplication extends Application<ExampleConfiguration>{
         if(configuration.metricsEnabled()) {
 
 
-            final Graphite graphite = new Graphite(new InetSocketAddress("graphite.example.com", 2003));
+            final Riemann riemann = new Riemann("riemann.example.com", 5555);
 
-            final GraphiteReporter reporter = GraphiteReporter.forRegistry(environment.metrics())
+            final RiemannReporter reporter = RiemannReporter.forRegistry(environment.metrics())
                     .prefixedWith("prefix")
                     .convertRatesTo(TimeUnit.SECONDS)
                     .convertDurationsTo(TimeUnit.MILLISECONDS)
                     .filter(MetricFilter.ALL)
-                    .build(graphite);
+                    .build(riemann);
             reporter.start(5, TimeUnit.SECONDS);
 
             final ConsoleReporter consoleReporter = ConsoleReporter.forRegistry(environment.metrics()).build();
